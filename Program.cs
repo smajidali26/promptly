@@ -22,8 +22,14 @@ internal class Program
             .AddApplicationInsightsTelemetryWorkerService()
             .ConfigureFunctionsApplicationInsights();
 
-        // Load configuration
         var config = builder.Configuration;
+
+        // Register configuration sections
+        builder.Services.Configure<AzureOpenAIConfig>(config.GetSection("AzureOpenAI"));
+        builder.Services.Configure<BlobStorageConfig>(config.GetSection("BlobStorage"));
+        builder.Services.Configure<CosmosDbConfig>(config.GetSection("CosmosDb"));
+
+        // Load AzureOpenAI config directly (throwing exception if missing)
         var azureOpenAIConfig = config.GetSection("AzureOpenAI").Get<AzureOpenAIConfig>()
             ?? throw new InvalidOperationException("Missing AzureOpenAI configuration");
 

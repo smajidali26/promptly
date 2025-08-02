@@ -1,8 +1,10 @@
+using AgenticAI.Config;
 using AgenticAI.Models;
 using Azure.Storage.Blobs;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.SemanticKernel;
 using System.Text;
 using System.Text.Json;
@@ -14,11 +16,13 @@ public class ResumeAnalyzerFunction
 {
     private readonly ILogger<ResumeAnalyzerFunction> _logger;
     private readonly Kernel _kernel;
+    private readonly CosmosDbConfig _cosmosDbConfig;
 
-    public ResumeAnalyzerFunction(ILogger<ResumeAnalyzerFunction> logger, Kernel kernel)
+    public ResumeAnalyzerFunction(ILogger<ResumeAnalyzerFunction> logger, Kernel kernel, IOptions<CosmosDbConfig> cosmosOptions)
     {
         _logger = logger;
         _kernel = kernel;
+        _cosmosDbConfig = cosmosOptions.Value;
     }
 
     [Function("ResumeAnalyzer")]
@@ -232,16 +236,17 @@ Return ONLY the JSON object with no additional text, explanations, or formatting
     {
         try
         {
-            var connectionString = Environment.GetEnvironmentVariable("CosmosDbConnectionString");
-            var databaseName = Environment.GetEnvironmentVariable("CosmosDbDatabaseName");
-            var containerName = Environment.GetEnvironmentVariable("CosmosDbContainerName");
+            var accountEndpoint = _cosmosDbConfig.AccountEndpoint;
+            var accountKey = _cosmosDbConfig.AccountKey;
+            var databaseName = _cosmosDbConfig.DatabaseName;
+            var containerName = _cosmosDbConfig.ContainerName;
 
-            if (string.IsNullOrEmpty(connectionString) || string.IsNullOrEmpty(databaseName) || string.IsNullOrEmpty(containerName))
+            if (string.IsNullOrEmpty(accountEndpoint) || string.IsNullOrEmpty(accountKey) || string.IsNullOrEmpty(databaseName) || string.IsNullOrEmpty(containerName))
             {
                 throw new InvalidOperationException("Cosmos DB configuration is missing");
             }
 
-            var cosmosClient = new CosmosClient(connectionString);
+            var cosmosClient = new CosmosClient(accountEndpoint, accountKey);
             var container = cosmosClient.GetContainer(databaseName, containerName);
 
             // Parse AI analysis JSON

@@ -1,12 +1,10 @@
 ﻿namespace AgenticAI.Config
 {
-    public class BlobStorageConfig
+    public class CosmosDbConfig
     {
-        public string AccountName { get; set; } = string.Empty;
+        public string AccountEndpoint { get; set; } = string.Empty;
         public string AccountKey { get; set; } = string.Empty;
+        public string DatabaseName { get; set; } = string.Empty;
         public string ContainerName { get; set; } = string.Empty;
-
-        public string ConnectionString { get; set; } = string.Empty;
-
     }
 }
