@@ -19,9 +19,9 @@ builder.Services
 var kernelBuilder = builder.Services.AddKernel();
 
 kernelBuilder.AddAzureOpenAIChatCompletion(
-    deploymentName: Environment.GetEnvironmentVariable("AzureOpenAIChatCompletion:DeploymentName") ?? throw new InvalidOperationException("Missing Azure OpenAI deployment name"),
-    endpoint: Environment.GetEnvironmentVariable("AzureOpenAIChatCompletion:Endpoint") ?? throw new InvalidOperationException("Missing Azure OpenAI endpoint"),
-    credentials: new DefaultAzureCredential());
+           deploymentName: "gpt-35-turbo",
+           endpoint: "https://semantic-kernel-openai001.openai.azure.com/",
+           apiKey: "GC2JBHUgIddJRcM8iyJegMItyJ8UI4DYMhu46V4rrBrtS6PQXEeHJQQJ99BGACYeBjFXJ3w3AAABACOGPUu1");
 
 // Register Semantic Kernel plugins
 kernelBuilder.Plugins.AddFromType<KernelFunctionsLibrary>();
