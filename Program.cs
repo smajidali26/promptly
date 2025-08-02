@@ -1,29 +1,44 @@
+using AgenticAI.Config;
 using AgenticAI.Services;
 using Azure.Identity;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.SemanticKernel;
 
-var builder = FunctionsApplication.CreateBuilder(args);
+internal class Program
+{
+    private static void Main(string[] args)
+    {
+        var builder = FunctionsApplication.CreateBuilder(args);
 
-builder.ConfigureFunctionsWebApplication();
+        // Enable Functions environment (telemetry, DI, etc.)
+        builder.ConfigureFunctionsWebApplication();
 
-// Add Application Insights
-builder.Services
-    .AddApplicationInsightsTelemetryWorkerService()
-    .ConfigureFunctionsApplicationInsights();
+        // Add Application Insights (optional)
+        builder.Services
+            .AddApplicationInsightsTelemetryWorkerService()
+            .ConfigureFunctionsApplicationInsights();
 
-// Add Semantic Kernel
-var kernelBuilder = builder.Services.AddKernel();
+        // Load configuration
+        var config = builder.Configuration;
+        var azureOpenAIConfig = config.GetSection("AzureOpenAI").Get<AzureOpenAIConfig>()
+            ?? throw new InvalidOperationException("Missing AzureOpenAI configuration");
 
-kernelBuilder.AddAzureOpenAIChatCompletion(
-           deploymentName: "gpt-35-turbo",
-           endpoint: "https://semantic-kernel-openai001.openai.azure.com/",
-           apiKey: "GC2JBHUgIddJRcM8iyJegMItyJ8UI4DYMhu46V4rrBrtS6PQXEeHJQQJ99BGACYeBjFXJ3w3AAABACOGPUu1");
+        // Register Semantic Kernel
+        var kernelBuilder = builder.Services.AddKernel();
 
-// Register Semantic Kernel plugins
-kernelBuilder.Plugins.AddFromType<KernelFunctionsLibrary>();
+        kernelBuilder.AddAzureOpenAIChatCompletion(
+            deploymentName: azureOpenAIConfig.DeploymentName,
+            endpoint: azureOpenAIConfig.Endpoint,
+            apiKey: azureOpenAIConfig.ApiKey
+        );
 
-builder.Build().Run();
+        // Register plugins
+        kernelBuilder.Plugins.AddFromType<KernelFunctionsLibrary>();
+
+        builder.Build().Run();
+    }
+}
