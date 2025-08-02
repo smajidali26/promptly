@@ -1,0 +1,16 @@
+{
+    "subject": "Application for Software Developer Position",
+    "body": "Dear Hiring Manager,\n\nI am writing to express my interest in the Software Developer position advertised on your company website. I have attached my resume for your consideration.\n\nI have 5 years of experience in full-stack development using .NET, Azure, and React. I am excited about the opportunity to contribute to your team.\n\nThank you for your time and consideration.\n\nBest regards,\nJohn Doe",
+    "internetMessageId": "sample-message-001",
+    "from": "john.doe@example.com",
+    "to": "hr@company.com",
+    "receivedDateTime": "2025-08-02T10:00:00Z",
+    "attachments": [
+        {
+            "name": "john_doe_resume.pdf",
+            "contentType": "application/pdf",
+            "contentBytes": "",
+            "size": 1024000
+        }
+    ]
+}
